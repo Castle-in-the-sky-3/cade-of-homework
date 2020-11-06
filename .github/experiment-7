@@ -1,0 +1,629 @@
+/***************
+**文件名：experiment-7
+**创建人：王梦涵
+**日期：2020年11月04日
+**描述：学生成绩管理系统5.0
+**----------------
+****************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define N 30
+#define PROJECT 6
+void ScanfScore(long number[],char name[][20],int score[][PROJECT],int n,int project);/*录入每个学生的学号、姓名和各科考试成绩*/
+int SumAndAverOfProjects(int score[][PROJECT],int n,int project);/*计算每门课程的总分和平均分*/
+void SumAndAverOfStudents(long number[],char name[][20],int score[][PROJECT],int n,int project);/*计算每个学生的总分和平均分*/
+void ScoreFromHighToLow(long number[],char name[][20],int score[][PROJECT],int n,int project);/*按每个学生的总分由高到低排出名次表*/
+void ScoreFromLowToHigh(long number[],char name[][20],int score[][PROJECT],int n,int project);/*按每个学生的总分由低到高排出名次表*/
+void NumberFromSmallToBig(long number[],char name[][20],int score[][PROJECT],int n,int project);/*按学号由小到大排出成绩表*/
+void NameByDictionary(long number[],char name[][20],int score[][PROJECT],int n,int project);/*按姓名的字典顺序排出成绩表*/
+void SearchByNumber(long number[],char name[][20],int score[][PROJECT],int n,int project);/*按学号查询学生排名及其考试成绩*/
+void SearchByName(long number[],char name[][20],int score[][PROJECT],int n,int project);/*按姓名查询学生排名及其考试成绩*/
+int DifferentCategory(int score[][PROJECT],int n,int project);/*统计不同类别的人数以及所占的百分比*/
+void PrintfScore(long number[],char name[][20],int score[][PROJECT],int n,int project);/*输出每个学生的学号，姓名，各科考试成绩，总分和平均分*/
+void Swap(float *x,float *y);/*两单精度实型数据互换*/
+void Swap1(int a[][PROJECT],int x,int y,int project);/*二维数组两行互换*/
+void Swap2(long *x,long *y);/*两长整数值互换*/
+void Swap3(char a[20],char b[20]);/*两字符串互换*/
+
+int main(void)
+{
+    printf("Number:200210101\n");
+    printf("Subject No.7\n");
+    int score[N][PROJECT],n,project,choice,i;
+    long number[N];
+    char name[N][20];
+    do
+    {
+        printf("Input n and project:");
+        scanf("%d,%d",&n,&project);
+    }while(n>N||project>PROJECT);
+    printf("Input record:(number\tname\tscore)\n");
+    ScanfScore(number,name,score,n,project);
+    printf("1.Calculate total and average score of every course\n");
+    printf("2.Calculate total and average score of every student\n");
+    printf("3.Sort in descending order by total score of every student\n");
+    printf("4.Sort in ascending order by total score of every student\n");
+    printf("5.Sort in ascending order by number\n");
+    printf("6.Sort in dictionary order by name\n");
+    printf("7.Search by number\n");
+    printf("8.Search by name\n");
+    printf("9.Statistic analysis for every course\n");
+    printf("10.List record\n");
+    printf("11.Exit\n");
+    for(i=0;i<10;i++)
+    {
+        printf("Please input your choice:");
+        getchar();
+        scanf("%d",&choice);
+        switch(choice)
+        {
+            case 1:SumAndAverOfProjects(score,n,project);
+                   break;
+            case 2:SumAndAverOfStudents(number,name,score,n,project);
+                   break;
+            case 3:ScoreFromHighToLow(number,name,score,n,project);
+                   break;
+            case 4:ScoreFromLowToHigh(number,name,score,n,project);
+                   break;
+            case 5:NumberFromSmallToBig(number,name,score,n,project);
+                   break;
+            case 6:NameByDictionary(number,name,score,n,project);
+                   break;
+            case 7:SearchByNumber(number,name,score,n,project);
+                   break;
+            case 8:SearchByName(number,name,score,n,project);
+                   break;
+            case 9:DifferentCategory(score,n,project);
+                   break;
+            case 10:PrintfScore(number,name,score,n,project);
+                   break;
+            case 11:return 0;
+            default:printf("Input data error!\n");
+                    i--;
+                    break;
+        }
+    }
+    return 0;
+}
+/*******************
+**函数名：录入每个学生的学号、姓名和各科考试成绩
+**输出：score[][PROJECT],number[],name[][20],n;
+**score[][PROJECT]:输入的各位学生的各科成绩
+**number[]：输入的各位学生的学号
+**name[][20]:输入的各位学生的姓名
+**n:输入的学生人数
+**project:输入的课程数
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+void ScanfScore(long number[],char name[][20],int score[][PROJECT],int n,int project)
+{
+    int i,j,k;
+    for(i=0;i<n;i++)
+    {
+        getchar();
+        scanf("%ld\t%s",&number[i],name[i]);
+        for(j=0;j<project;j++)
+        {
+            getchar();
+            scanf("%d",&score[i][j]);
+        }
+        for(k=0;k<project;k++)
+        {
+             if(score[i][k]>100||score[i][k]<0)
+            {
+                printf("Input data error!Please input this student's datas again.\n");
+                i--;
+                break;
+            }
+        }
+    }
+}
+/*******************
+**函数名：计算每门课程的总分和平均分
+**输入：score[][PROJECT],n;
+**score[][PROJECT]:输入的各位学生的成绩
+**n:输入的学生人数
+**输出；sum[N],aver[N];
+sum[N]:每门课程的总分
+aver[N]：每门课程的平均分
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+int SumAndAverOfProjects(int score[][PROJECT],int n,int project)
+{
+    int i,j,k;
+    float sum[N]={0},aver[N];
+    for(j=0;j<project;j++)
+    {
+        for(i=0;i<n;i++)
+        {
+            sum[j]=sum[j]+score[i][j];
+        }
+        aver[j]=sum[j]/n;
+    }
+    printf("Calculate total and average score of course:\n");
+    for(k=0;k<n;k++)
+    {
+        printf("第%d门课程，总分为%.1f，平均分为%.2f\n",(k+1),sum[k],aver[k]);
+    }
+}
+/*******************
+**函数名：计算每个学生的总分和平均分
+**输入：number[],name[][20],score[][PROJECT],n;
+**number[]:输入的各位学生的学号
+**name[][20]:输入的各位学生的姓名
+**score[][PROJECT]:输入的各位学生的成绩
+**n:输入的学生人数
+**输出；sum[N],aver[N];
+sum[N]:每个学生的总分
+aver[N]：每个学生的平均分
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+void SumAndAverOfStudents(long number[],char name[][20],int score[][PROJECT],int n,int project)
+{
+    int i,j,k;
+    float sum[N]={0},aver[N];
+    for(i=0;i<project;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            sum[i]=sum[i]+score[i][j];
+        }
+        aver[i]=sum[i]/n;
+    }
+    printf("Calculate total and average score of course:\n");
+    for(k=0;k<n;k++)
+    {
+        printf("学号为%ld的%s总分为%.1f，平均分为%.2f\n",number[k],name[k],sum[k],aver[k]);
+    }
+}
+/*******************
+**函数名：按每个学生的总分由高到低排出名次表
+**输入：score[][PROJECT],number[],name[][20],n;
+**score[][PROJECT]:输入的各位学生的成绩
+**number[]：输入的各位学生的学号
+**name[][20]:输入的各位学生的姓名
+**n:输入的学生人数
+**输出：按总分由高到低排出的名次表
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+void ScoreFromHighToLow(long number[],char name[][20],int score[][PROJECT],int n,int project)
+{
+    int i,j,k,m,x,y;
+    float sum[N]={0};
+    for(x=0;x<project;x++)
+    {
+        for(y=0;y<n;y++)
+        {
+            sum[x]=sum[x]+score[x][y];
+        }
+    }
+    for(i=0;i<=n-2;i++)
+    {
+        k=i;
+        for(j=i+1;j<=n-1;j++)
+        {
+            if(sum[k]<sum[j])
+            {
+                k=j;
+            }
+        }
+        if(k!=i)
+        {
+            Swap(&sum[i],&sum[k]);
+            Swap1(score,i,k,project);
+            Swap2(&number[i],&number[k]);
+            Swap3(name[i],name[k]);
+        }
+    }
+    printf("Sort in descending order by score:\n");
+    for(m=0;m<n;m++)
+    {
+        printf("No.%d\t%ld\t %s\t%.1f\n",m+1,number[m],name[m],sum[m]);
+    }
+}
+/*******************
+**函数名：按每个学生的总分由低到高排出名次表
+**输入：score[][PROJECT],number[],name[][20],n;
+**score[][PROJECT]:输入的各位学生的成绩
+**number[]：输入的各位学生的学号
+**name[][20]:输入的各位学生的姓名
+**n:输入的学生人数
+**输出：按总分由低到高排出的名次表
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+void ScoreFromLowToHigh(long number[],char name[][20],int score[][PROJECT],int n,int project)
+{
+    int i,j,k,m,x,y;
+    float sum[N]={0};
+    for(x=0;x<project;x++)
+    {
+        for(y=0;y<n;y++)
+        {
+            sum[x]=sum[x]+score[x][y];
+        }
+    }
+    for(i=0;i<=n-2;i++)
+    {
+        k=i;
+        for(j=i+1;j<=n-1;j++)
+        {
+            if(sum[k]>sum[j])
+            {
+                k=j;
+            }
+        }
+        if(k!=i)
+        {
+            Swap(&sum[i],&sum[k]);
+            Swap1(score,i,k,project);
+            Swap2(&number[i],&number[k]);
+            Swap3(name[i],name[k]);
+        }
+    }
+    printf("Sort in descending order by score:\n");
+    for(m=0;m<n;m++)
+    {
+        printf("No.%d\t%ld\t %s\t%.1f\n",m+1,number[m],name[m],sum[m]);
+    }
+}
+/*******************
+**函数名：按学号由小到大排出成绩表
+**输入：score[][PROJECT],number[],name[][20],n;
+**score[][PROJECT]:输入的各位学生的成绩
+**number[]：输入的各位学生的学号
+**name[][20]:输入的各位学生的姓名
+**n:输入的学生人数
+输出：按学号由小到大排出的成绩表
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+void NumberFromSmallToBig(long number[],char name[][20],int score[][PROJECT],int n,int project)
+{
+    int i,j,k,m,l;
+    for(i=0;i<n-1;i++)
+    {
+        k=i;
+        for(j=i+1;j<n;j++)
+        {
+            if(number[k]>number[j])
+            {
+                k=j;
+            }
+        }
+        if(k!=i)
+        {
+            Swap1(score,i,k,project);
+            Swap2(&number[i],&number[k]);
+            Swap3(name[i],name[k]);
+        }
+    }
+    printf("Sort in ascending order by number:\n");
+    for(m=0;m<n;m++)
+    {
+        printf("%ld\t %s",number[m],name[m]);
+        for(l=0;l<project;l++)
+        {
+            printf("\t%d",score[m][l]);
+        }
+        printf("\n");
+    }
+}
+/*******************
+**函数名：按姓名的字典顺序由小到大排出成绩表
+**输入：score[][PROJECT],number[],name[][20],n;
+**score[][PROJECT]:输入的各位学生的成绩
+**number[]：输入的各位学生的学号
+**name[][20]:输入的各位学生的姓名
+**n:输入的学生人数
+输出：按姓名的字典顺序由小到大排出的成绩表
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+void NameByDictionary(long number[],char name[][20],int score[][PROJECT],int n,int project)
+{
+    int i,j,k,m,l;
+    for(i=0;i<n-1;i++)
+    {
+        k=i;
+        for(j=i+1;j<n;j++)
+        {
+            if(strcmp(name[j],name[i])<0)
+            {
+                k=j;
+            }
+        }
+        if(k!=i)
+        {
+            Swap1(score,i,k,project);
+            Swap2(&number[i],&number[k]);
+            Swap3(name[i],name[k]);
+        }
+    }
+    printf("Sort in dictionary order by name:\n");
+    for(m=0;m<n;m++)
+    {
+        printf("%ld\t %s",number[m],name[m]);
+        for(l=0;l<project;l++)
+        {
+            printf("\t%d",score[m][l]);
+        }
+        printf("\n");
+    }
+}
+/*******************
+**函数名：按学号查询学生排名及其考试成绩
+**输入：score[][PROJECT],number[],name[][20],n;
+**score[][PROJECT]:输入的各位学生的成绩
+**number[]：输入的各位学生的学号
+**name[][20]:输入的各位学生的姓名
+**n:输入的学生人数
+**输出：score[][PROJECT],number[],name[][20],a;
+**score[][PROJECT]:要查找的学生的成绩
+**number[]:要查找的学生的学号
+**name[][20]:要查找的学生的姓名
+**a：要查找的学生的排名
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+void SearchByNumber(long number[],char name[][20],int score[][PROJECT],int n,int project)
+{
+    int a,i,j,k,l,x,y;
+    float sum[N]={0},aver[N];
+    for(x=0;x<project;x++)
+    {
+        for(y=0;y<n;y++)
+        {
+            sum[x]=sum[x]+score[x][y];
+        }
+        aver[x]=sum[x]/project;
+    }
+    for(i=0;i<=n-2;i++)
+    {
+        k=i;
+        for(j=i+1;j<=n-1;j++)
+        {
+            if(sum[k]<sum[j])
+            {
+                k=j;
+            }
+        }
+        if(k!=i)
+        {
+            Swap(&sum[i],&sum[k]);
+            Swap(&aver[i],&aver[k]);
+            Swap1(score,i,k,project);
+            Swap2(&number[i],&number[k]);
+            Swap3(name[i],name[k]);
+        }
+    }
+    long z;/*z为要查找的学号*/
+    printf("Search by number:\n");
+    printf("Input z:");
+    scanf("%ld",&z);
+    for(a=0;a<n;a++)
+    {
+        if(z==number[a])
+        {
+            printf("%ld\t %s",number[a],name[a]);
+            for(l=0;l<project;l++)
+            {
+                printf("\t%d",score[a][l]);
+            }
+            printf("\t%.1f\t%.2f\n",sum[a],aver[a]);
+            return 0;
+        }
+    }
+    printf("Not found!\n");
+}
+/*******************
+**函数名：按姓名查询学生排名及其考试成绩
+**输入：score[][PROJECT],number[],name[][20],n;
+**score[][PROJECT]:输入的各位学生的成绩
+**number[]：输入的各位学生的学号
+**name[][20]:输入的各位学生的姓名
+**n:输入的学生人数
+**输出：score[][PROJECT],number[],name[][20],a;
+**score[][PROJECT]:要查找的学生的成绩
+**number[]:要查找的学生的学号
+**name[][20]:要查找的学生的姓名
+**a：要查找的学生的排名
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+void SearchByName(long number[],char name[][20],int score[][PROJECT],int n,int project)
+{
+    int a,i,j,k,l,x,y;
+    float sum[N]={0},aver[N];
+    for(x=0;x<project;x++)
+    {
+        for(y=0;y<n;y++)
+        {
+            sum[x]=sum[x]+score[x][y];
+        }
+        aver[x]=sum[x]/project;
+    }
+    for(i=0;i<=n-2;i++)
+    {
+        k=i;
+        for(j=i+1;j<=n-1;j++)
+        {
+            if(sum[k]<sum[j])
+            {
+                k=j;
+            }
+        }
+        if(k!=i)
+        {
+            Swap(&sum[i],&sum[k]);
+            Swap(&aver[i],&aver[k]);
+            Swap1(score,i,k,project);
+            Swap2(&number[i],&number[k]);
+            Swap3(name[i],name[k]);
+        }
+    }
+    char z[20];/*x为要查找的姓名*/
+    printf("Search by name:\n");
+    printf("Input z:");
+    scanf("%s",z);
+    for(a=0;a<n;a++)
+    {
+        if(strcmp(z,name[a])==0)
+        {
+            printf("%ld\t %s",number[a],name[a]);
+            for(l=0;l<project;l++)
+            {
+                printf("\t%d",score[a][l]);
+            }
+            printf("\t%.1f\t%.2f\n",sum[a],aver[a]);
+            return 0;
+        }
+    }
+    printf("Not found!\n");
+}
+/*******************
+**函数名：统计不同类别的人数以及所占的百分比
+**输入：score[][PROJECT],n;
+**score[][PROJECT]:输入的各位学生的成绩
+**n:输入的学生人数
+**输出：A[],B[],C[],D[],E[],a[],b[],c[],d[],e[];
+**功能描述：按优秀（90-100分）、良好（80-89分）、中等（70-79分）、及格（60-69分）、
+不及格（0-59分）5个类别，统计每门课程不同类别的人数以及所占的百分比
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+int DifferentCategory(int score[][PROJECT],int n,int project)
+{
+    int i,j,k;
+    int A[N]={0};
+    int B[N]={0};
+    int C[N]={0};
+    int D[N]={0};
+    int E[N]={0};
+    int a[N],b[N],c[N],d[N],e[N];
+    for(j=0;j<project;j++)
+    {
+        for(i=0;i<n;i++)
+        {
+           if(score[i][j]>=90&&score[i][j]<=100) A[j]++;
+           if(score[i][j]>=80&&score[i][j]<=89) B[j]++;
+           if(score[i][j]>=70&&score[i][j]<=79) C[j]++;
+           if(score[i][j]>=60&&score[i][j]<=69) D[j]++;
+           if(score[i][j]>=0&&score[i][j]<=59) E[j]++;
+        }
+        a[j]=100*A[j]/n;
+        b[j]=100*B[j]/n;
+        c[j]=100*C[j]/n;
+        d[j]=100*D[j]/n;
+        e[j]=100*E[j]/n;
+    }
+    for(k=0;k<project;k++)
+    {
+        printf("第%d门课程,优秀有%d人，占比%d%%;良好有%d人，占比%d%%;中等有%d人，占比%d%%;\n及格有%d人，占比%d%%;不及格有%d人，占比%d%%\n",(k+1),A[k],a[k],B[k],b[k],C[k],c[k],D[k],d[k],E[k],e[k]);
+    }
+}
+/*******************
+**函数名：输出每个学生的学号，姓名，每科考试成绩以及总分和平均分
+**输入：score[][PROJECT],number[],name[][20],n;
+**score[][PROJECT]:输入的各位学生的成绩
+**number[]:输入的各位学生的学号
+**name[][20]:输入的各位学生的姓名
+**n:输入的学生人数
+**输出：score[][PROJECT],number[],name[][20],sum[],aver[]
+**sum[]:学生总分
+**aver[]：学生平均分
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+void PrintfScore(long number[],char name[][20],int score[][PROJECT],int n,int project)
+{
+    int l,m,x,y;
+    float sum[N]={0},aver[N];
+    for(x=0;x<project;x++)
+    {
+        for(y=0;y<n;y++)
+        {
+            sum[x]=sum[x]+score[x][y];
+        }
+        aver[x]=sum[x]/project;
+    }
+    for(m=0;m<n;m++)
+    {
+        printf("%ld\t %s",number[m],name[m]);
+        for(l=0;l<project;l++)
+        {
+            printf("\t%d",score[m][l]);
+        }
+        printf("\t%.1f\t%.2f\n",sum[m],aver[m]);
+    }
+}
+/*******************
+**函数名：两单精度实型数据互换
+**输入：*x,*y
+** *x:要交换的数1
+** *y:要交换的数2
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+void Swap(float *x,float *y)
+{
+    float temp;
+    temp=*x;
+    *x=*y;
+    *y=temp;
+}
+/*******************
+**函数名：二维数组两行互换
+**输入：a[N][PROJECT],x,y,project
+** a[N][PROJECT]:要交换的二维数组
+** x,y:要交换的两行
+**project:输入的科目数
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+void Swap1(int a[][PROJECT],int x,int y,int project)
+{
+    int temp[N];
+    int i;
+    for(i=0;i<project;i++)
+    {
+        temp[i]=a[x][i];
+        a[x][i]=a[y][i];
+        a[y][i]=temp[i];
+    }
+}
+/*******************
+**函数名：两长整数值互换
+**输入：*x,*y
+** *x:要交换的数1
+** *y:要交换的数2
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+void Swap2(long *x,long *y)
+{
+    long temp;
+    temp=*x;
+    *x=*y;
+    *y=temp;
+}
+/*******************
+**函数名：两字符串互换
+**输入：a[][20],b[][20]
+** a[][20]:要交换的字符串1
+** b[][20]:要交换的字符串2
+**作者：王梦涵
+**日期；2020年11月04日
+********************/
+void Swap3(char a[20],char b[20])
+{
+    char temp[20];
+    strcpy(temp,a);
+    strcpy(a,b);
+    strcpy(b,temp);
+}
